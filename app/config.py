@@ -1,8 +1,8 @@
 from pathlib import Path
 import os
-BASE_DIR = Path(__file__).resolve().parent()
+BASE_DIR = Path(__file__).resolve().parent
 
-PINECONE_INDEX_NAME = "hybrid_resume_index"
+PINECONE_INDEX_NAME = "hybrid-resume-index"
 PINECONE_INDEX_CLOUD = "aws"
 PINECONE_INDEX_REGION = "us-east-1"
 PINECONE_INDEX_DIMENSION = 384
