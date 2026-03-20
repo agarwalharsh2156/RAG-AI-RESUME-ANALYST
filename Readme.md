@@ -2,6 +2,7 @@ RAG-AI Resume Analyst
 leverages RAG pipeline to fetch top-k best resume results and pass it through a LLM to get the scores and analysis of the resume out.
 
 After you clone the repo locally:
+
 Run create_index.py 
 ---If it gives a positive output, you are good to go, if not, you might need some changes.
 
