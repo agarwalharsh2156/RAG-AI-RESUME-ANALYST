@@ -41,12 +41,16 @@ def dense_embed(path):
         Requires a list of strings, each string specifying a specific chunk of the entire query(document, question).
     """
     embed_queries = create_query_for_embed(path)
+    embeddings = {
 
+    }
     for key, value in embed_queries.entries():
         file_name = key
         query = value["query"]
         chunk_names = value["metadata"]
-    embeddings = model.encode(query)
+        embeddings["file_name"] = file_name
+        embeddings["dense"] = model.encode(query)
+        embeddings["metadata"] = chunk_names
     return embeddings
 
 if __name__ == "main":
