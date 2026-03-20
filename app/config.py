@@ -13,4 +13,4 @@ LLM_MODEL = 'gemini-2.5-flash'
 DEFAULT_TOP_K = 1
 DEFAULT_NAMESPACE = "ai-labs-batch-2026"
 
-RESUME_DIR = os.path.join(BASE_DIR, 'data', 'resumes')
+RESUME_DIR = os.path.join(BASE_DIR, 'resumes')

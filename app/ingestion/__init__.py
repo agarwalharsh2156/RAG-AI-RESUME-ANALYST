@@ -1,1 +1,0 @@
-from app.ingestion.parse import parse_resume
