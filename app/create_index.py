@@ -4,19 +4,17 @@ import os
 import config as c
 load_dotenv()
 
+# creating a pinecone object with the api key bypassing ssl certificate verification.
+pc = Pinecone(api_key = os.getenv("PINECONE_AI_RESUME_ANALYST_KEY"), ssl_verify = False)
+index_name = c.PINECONE_INDEX_NAME
+
 # method to create a pinecone index
-def create():
-    # creating a pinecone object with the api key bypassing ssl certificate verification.
-    pc = Pinecone(api_key = os.getenv("PINECONE_AI_RESUME_ANALYST_KEY"), ssl_verify = False)
-
-    # setting Pinecone index name
-    index_name = c.PINECONE_INDEX_NAME
-
+def create(index_name):
     # creating pinecone index is not exists
     if not pc.has_index(index_name):
         pc.create_index(
             name = index_name,
-            
+            vector_type = c.PINECONE_VECTOR_TYPE,
             # specifying if want elastic scaling or Pod based customised resource specifications
             spec = ServerlessSpec(
                 cloud = c.PINECONE_INDEX_CLOUD,
@@ -31,7 +29,9 @@ def create():
             metric = c.PINECONE_INDEX_METRIC, 
         )
 
-    return f"Pinecone index created with name: {index_name}"
+        print(f"Pinecone index created with name: {index_name}")
 
-if __name__ == "main":
-    create()
+    print("Pinecone index already exists.")
+
+if __name__ == "__main__":
+    create(index_name=index_name)

@@ -16,31 +16,33 @@ def split_text_into_chunks(text):
     text = re.sub(r"(a-zA-Z)\s*\n(a-zA-z)", "\1 \2", text)
 
     lines = text.splitlines()
+
     sections = {}
     currentSection = "Personal Details"
     currentLine = []
-
     sectionNames =  [
         "personal", "contact", "profile", "summary", "about",
         "education", "qualification", "academic",
         "experience", "work", "employment", "professional",
         "skills", "technical", "competencies",
         "project", "projects",
-        "certification", "certificate", "award", "achievement",
+        "certifications", "certification" "certificate", "award", "achievement", "achievements",
         "language", "languages",
-        "interest", "hobbies"
+        "interest", "interests", "hobbies"
     ]
 
-    for line in lines:
-        clean_line = line.strip().lower()
+    for line in lines:  
         if not line:
             continue
-        is_section = any(clean_line.startswith(s) for s in sectionNames)
+        clean_line = line.strip().lower()
+        is_section = any(clean_line.startswith(s) for s in sectionNames) and len(clean_line) <= 50
+
         if is_section:
             content = "\n".join(currentLine).strip()
             if content:
                 sections[currentSection] = content
             currentSection = clean_line
+            currentLine = []
             content = []
         else:
             currentLine.append(clean_line)
@@ -70,8 +72,4 @@ def parse_folder(path):
     else:
         print("Invalid folder")
         return {}
-
-
-        
-
 
