@@ -4,13 +4,13 @@ from ingestion.parse import parse_pdf
 from pathlib import Path
 
 
-model = SentenceTransformer("./dense-vectorizer-model")
+model = SentenceTransformer('./dense-vectorizer-model')
 # model.save('./dense-vectorizer-model')
 def create_query_for_embed(path):
     """
         Output format:
         {
-            file_name: {
+            "file_name": {
                 query: [list of sentences/chunks]
                 metadata: [list of chunk names corresponding to the chunks in queries]
             }
@@ -37,25 +37,63 @@ def create_query_for_embed(path):
         embed_queries[key]["metadata"] = chunks 
     return embed_queries
 
+# ingestion/dense.py — at the end of dense_embed function
 def dense_embed(path):
     """
-        Requires a list of strings, each string specifying a specific chunk of the entire query(document, question).
+        Expects a folder path. Input a folder which has all the resumes.
+        Output format ->
+        [
+            {
+                "id": "mohit_tcs_resume__personal_details", 
+                "values": [...768 floats...], 
+                "metadata": {
+                    "filename": filename,
+                    "section": section,
+                    "resume_id": resume_id,
+                    "text": texts[i][:1200]
+                }
+            }, 
+            {
+                "id": "mohit_tcs_resume__personal_details", 
+                "values": [...768 floats...], 
+                "metadata": {...}
+            }, 
+
+        ]
     """
     embed_queries = create_query_for_embed(path)
-    list_embeddings = []
-    for key, value in embed_queries.items():
-        file_name = key
-        query = value["query"]
-        chunk_names = value["metadata"]
-        embeddings = {}
-        embeddings["file_name"] = file_name
-        embeddings["dense"] = model.encode(query)
-        embeddings["metadata"] = chunk_names
-        list_embeddings.append(embeddings)
-    return list_embeddings
+    to_upsert = []  
 
-if __name__ == "main":
-    path = r"C:\Projects\AI_Resume_Analyst\resumes"
+    for filename, data in embed_queries.items():
+        texts = data["query"]          
+        sections = data["metadata"]    
+
+        if not texts:
+            continue
+
+        vectors = model.encode(texts, normalize_embeddings=True)  # shape (n_sections, 768)
+
+        resume_id = filename.replace(".pdf", "").replace(" ", "_").lower()
+
+        for i, (section, vector) in enumerate(zip(sections, vectors)):
+            chunk_id = f"{resume_id}__{i}" 
+            record = {
+                "id": chunk_id,
+                "values": vector.tolist(),              
+                "metadata": {
+                    "filename": filename,
+                    "section": section,
+                    "resume_id": resume_id,
+                    "text": texts[i][:1200]              # truncate — Pinecone metadata limit ~40KB
+                }
+            }
+            to_upsert.append(record)
+
+    return to_upsert
+
+
+if __name__ == "__main__":
+    path = r".../resumes"
     result = dense_embed(path)
     print(result)
 
