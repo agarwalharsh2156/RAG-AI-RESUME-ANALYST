@@ -13,7 +13,7 @@ def get_text_from_pdf(pdf_path):
 def split_text_into_chunks(text):
     text = re.sub(r"\n\s*\n+", "\n\n", text)
     text = re.sub(r"\.\s*", ". ", text)
-    text = re.sub(r"(a-zA-Z)\n(a-zA-z)", "\1 \2", text)
+    text = re.sub(r"(a-zA-Z)\s*\n(a-zA-z)", "\1 \2", text)
 
     lines = text.splitlines()
     sections = {}
@@ -50,7 +50,7 @@ def split_text_into_chunks(text):
             if content:
                 sections[currentSection] = content
     
-    if len(sections) == 0 or "Personal Details" in sections:
+    if len(sections) == 0 or ("Personal Details" in sections and len(sections) == 1):
         sections["Full Resume"] = text
         
     return sections

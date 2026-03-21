@@ -4,7 +4,8 @@ from ingestion.parse import parse_pdf
 from pathlib import Path
 
 
-model = SentenceTransformer(DENSE_MODEL_NAME)
+model = SentenceTransformer("./dense-vectorizer-model")
+# model.save('./dense-vectorizer-model')
 def create_query_for_embed(path):
     """
         Output format:
@@ -19,7 +20,7 @@ def create_query_for_embed(path):
     resumes = {}
     if folder.is_dir():
         for file in folder.glob("*.pdf"):
-            resumes[file.name] = parse_pdf(folder)
+            resumes[file.name] = parse_pdf(file)
     else:
         print("Folder doesn't exist")
         return {}
@@ -41,17 +42,17 @@ def dense_embed(path):
         Requires a list of strings, each string specifying a specific chunk of the entire query(document, question).
     """
     embed_queries = create_query_for_embed(path)
-    embeddings = {
-
-    }
-    for key, value in embed_queries.entries():
+    list_embeddings = []
+    for key, value in embed_queries.items():
         file_name = key
         query = value["query"]
         chunk_names = value["metadata"]
+        embeddings = {}
         embeddings["file_name"] = file_name
         embeddings["dense"] = model.encode(query)
         embeddings["metadata"] = chunk_names
-    return embeddings
+        list_embeddings.append(embeddings)
+    return list_embeddings
 
 if __name__ == "main":
     path = r"C:\Projects\AI_Resume_Analyst\resumes"
