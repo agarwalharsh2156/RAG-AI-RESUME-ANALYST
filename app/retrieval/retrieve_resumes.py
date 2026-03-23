@@ -1,11 +1,11 @@
 from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone
-from dotenv import load_env
+from dotenv import load_dotenv
 from collections import defaultdict
 from config import PINECONE_INDEX_NAME
 import os
  
-load_env()
+load_dotenv()
  
 # Load the exact same model you used during ingestion
 model = SentenceTransformer("./dense-vectorizer-model")
@@ -16,7 +16,7 @@ def get_top_resumes(jd_text, top_k_chunks = 15, top_n_resumes= 5):
     Main function you will call.
     Returns top N resumes ranked by overall match score.
     """
-    pc = Pinecone(api_key=os.getenv("PINECONE_AI_RESUME_ANALYST_API"), ssl_verify = False)
+    pc = Pinecone(api_key=os.getenv("PINECONE_AI_RESUME_ANALYST_KEY"), ssl_verify = False)
     index = pc.Index(PINECONE_INDEX_NAME)
  
     # 1. Embed the Job Description
@@ -32,8 +32,8 @@ def get_top_resumes(jd_text, top_k_chunks = 15, top_n_resumes= 5):
  
     # 3. Group chunks by resume filename
     resume_groups = defaultdict(list)
-    for match in response.get("matches", []):
-        meta = match["metadata"]
+    for match in response.matches:
+        meta = match.metadata
         filename = meta.get("filename")
  
         resume_groups[filename].append({

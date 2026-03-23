@@ -1,4 +1,4 @@
-def format_top_resumes_for_llm(
+def eng_prompt(
     ranked_resumes: list[dict],          # output from retrieve_top_resumes()
     jd_text: str,
     max_chars_per_resume: int = 3500,
