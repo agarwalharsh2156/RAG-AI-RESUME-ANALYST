@@ -4,8 +4,9 @@ from ingestion.parse import parse_pdf
 from pathlib import Path
 
 
-model = SentenceTransformer('./dense-vectorizer-model')
-# model.save('./dense-vectorizer-model')
+model = SentenceTransformer(DENSE_MODEL_NAME)
+# model.save('./768-d-model')
+# model.save('./384-d-model')
 def create_query_for_embed(path):
     """
         Output format:

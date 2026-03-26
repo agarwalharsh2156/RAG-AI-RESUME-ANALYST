@@ -5,11 +5,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 PINECONE_INDEX_NAME = "hybrid-resume-index"
 PINECONE_INDEX_CLOUD = "aws"
 PINECONE_INDEX_REGION = "us-east-1"
-PINECONE_INDEX_DIMENSION = 768
+DENSE_MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
+# DENSE_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+PINECONE_INDEX_DIMENSION = 768 if DENSE_MODEL_NAME == "sentence-transformers/all-mpnet-base-v2" else 384
 PINECONE_INDEX_METRIC = "cosine"
 PINECONE_VECTOR_TYPE = "dense"
 
-DENSE_MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
+
 LLM_MODEL = 'gemini-2.5-flash'
 DEFAULT_TOP_K = 1
 DEFAULT_NAMESPACE = "ai-labs-batch-2026"
