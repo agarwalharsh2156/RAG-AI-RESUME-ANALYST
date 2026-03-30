@@ -13,7 +13,7 @@ def get_text_from_pdf(pdf_path):
 def split_text_into_chunks(text):
     text = re.sub(r"\n\s*\n+", "\n\n", text)
     text = re.sub(r"\.\s*", ". ", text)
-    text = re.sub(r"(a-zA-Z)\s*\n(a-zA-z)", "\1 \2", text)
+    text = re.sub(r"([a-zA-Z])\s*\n([a-zA-z])", r"\1 \2", text)
 
     lines = text.splitlines()
 
@@ -26,7 +26,7 @@ def split_text_into_chunks(text):
         "experience", "work", "employment", "professional",
         "skills", "technical", "competencies",
         "project", "projects",
-        "certifications", "certification" "certificate", "award", "achievement", "achievements",
+        "certifications", "certification", "certificate", "award", "achievement", "achievements",
         "language", "languages",
         "interest", "interests", "hobbies"
     ]
@@ -34,7 +34,8 @@ def split_text_into_chunks(text):
     for line in lines:  
         if not line:
             continue
-        clean_line = line.strip().lower()
+        clean_line = line.strip()
+        lower=clean.lower()
         is_section = any(clean_line.startswith(s) for s in sectionNames) and len(clean_line) <= 50
 
         if is_section:
