@@ -6,6 +6,8 @@ After you clone the repo locally:
 Run create_index.py 
 ---If it gives a positive output, you are good to go, if not, you might need some changes.
 
+To run the project : command is : streamlit run generate.py
+
 Some good practices to follow:
 1. python -m venv venv ---------- To create a virtual environment for the project
 2. pip install -r requirements.txt ---------- To install all the dependencies using pip with their respective versions

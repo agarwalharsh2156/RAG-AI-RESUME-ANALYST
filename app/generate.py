@@ -34,7 +34,7 @@ query = st.text_area("Hiring Query:", "I want to hire a Full Stack Web Developer
 if st.button("Analyze Resumes"):
     with st.spinner("Fetching the best resumes out."):
         # getting top resumes out based on the query
-        ranked_resumes = get_top_resumes(query, top_k_chunks = 15, top_n_resumes = 3)
+        ranked_resumes = get_top_resumes(query, top_k_chunks = 15, top_n_resumes = 5)
 
         # getting the augmented prompt with resume context and the query
         final_prompt = eng_prompt(ranked_resumes, query)
