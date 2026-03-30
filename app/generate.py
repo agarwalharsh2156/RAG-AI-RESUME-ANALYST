@@ -34,9 +34,11 @@ if uploaded_files:
 
 
 if st.button("Analyze Resumes"):
-    # Change spinner to a container so it doesn't block the stream
     with st.spinner("Preparing analysis..."):
-        ranked_resumes = get_top_resumes(query, top_k_chunks = 15, top_n_resumes = 3)
+        # getting top resumes out based on the query
+        ranked_resumes = get_top_resumes(query, top_k_chunks = 15, top_n_resumes = 5)
+
+        # getting the augmented prompt with resume context and the query
         final_prompt = eng_prompt(ranked_resumes, query)
         # final_prompt = "Analyze this: " + query # Dummy prompt for testing
 
