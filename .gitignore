@@ -1,4 +1,5 @@
 venv
 .env
 __pycache__
-app/dense-vectorizer-model/
+app/768_d_model/
+resumes
