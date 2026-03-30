@@ -2,15 +2,14 @@ from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone
 from dotenv import load_dotenv
 from collections import defaultdict
-from config import PINECONE_INDEX_NAME
+from config import PINECONE_INDEX_NAME, DENSE_MODEL_NAME
 import os
  
 load_dotenv()
  
 # Load the exact same model you used during ingestion
-model = SentenceTransformer("./dense-vectorizer-model")
- 
- 
+model = SentenceTransformer("./768_d_model")
+# model.save("./768_d_model")
 def get_top_resumes(jd_text, top_k_chunks = 15, top_n_resumes= 5):
     """
     Main function you will call.
@@ -70,3 +69,4 @@ def get_top_resumes(jd_text, top_k_chunks = 15, top_n_resumes= 5):
     # 5. Sort and return top N
     ranked_resumes.sort(key=lambda x: x["overall_score"], reverse=True)
     return ranked_resumes[:top_n_resumes]
+

@@ -30,8 +30,14 @@ def create(index_name):
         )
 
         print(f"Pinecone index created with name: {index_name}")
+        return
 
     print("Pinecone index already exists.")
+    return
 
 if __name__ == "__main__":
-    create(index_name=index_name)
+    request = input("Create or Delete (C or D):")
+    if request == "C" or request == "c":
+        create(index_name=index_name)
+    if request == "D" or request == "d":
+        pc.delete_index(index_name)

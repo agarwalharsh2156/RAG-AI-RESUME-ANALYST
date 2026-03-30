@@ -1,11 +1,10 @@
 import streamlit as st
-from google import genai
-from google.genai import types
-from config import LLM_MODEL, LLM_INSTRUCTIONS, RESUME_DIR
-from retrieval.retrieve_resumes import get_top_resumes
-from retrieval.format_context import eng_prompt
-from ingestion.ingest import upsert_to_index
+# from google import genai
+# from google.genai import types
+from config import RESUME_DIR, LLM_INSTRUCTIONS
+import requests
 import os
+import json
 
 # 1. Basic Page Config
 st.set_page_config(page_title="Resume Analyst", layout="centered")
@@ -24,39 +23,80 @@ def save_and_upsert(upload):
             f.write(file.getbuffer())
     upsert_to_index(RESUME_DIR)
 
+query = st.text_area("Hiring Query:", "I want to hire a Full Stack Web Developer")
+
+from retrieval.retrieve_resumes import get_top_resumes
+from retrieval.format_context import eng_prompt
+from ingestion.ingest import upsert_to_index
 
 if uploaded_files:
     save_and_upsert(upload=uploaded_files)
 
-# 2. Minimal Input Section
-query = st.text_area("Hiring Query:", "I want to hire a Full Stack Web Developer")
 
 if st.button("Analyze Resumes"):
-    with st.spinner("Fetching the best resumes out."):
+    with st.spinner("Preparing analysis..."):
         # getting top resumes out based on the query
         ranked_resumes = get_top_resumes(query, top_k_chunks = 15, top_n_resumes = 5)
 
         # getting the augmented prompt with resume context and the query
         final_prompt = eng_prompt(ranked_resumes, query)
+        # final_prompt = "Analyze this: " + query # Dummy prompt for testing
 
-        client = genai.Client()
+        # 1. Setup API call with stream=True
+        url = "http://localhost:1234/v1/chat/completions" 
+    
+        payload = {
+            "model": "llama3.2-2b",
+            "messages": [ 
+                {"role": "system", "content": LLM_INSTRUCTIONS},
+                {"role": "user", "content": final_prompt}
+            ], 
+            "stream": True
+        }
 
-        # querying the model to get it's analysis for the given resumes
-        response = client.models.generate_content_stream(
-            model = LLM_MODEL,
-            config = types.GenerateContentConfig(
-                system_instruction = LLM_INSTRUCTIONS
-            ),
-            contents= final_prompt
-        )
-
-        # 3. Streaming to UI
+        # 2. Streaming to UI
         st.subheader("Analysis")
-        container = st.container(height= 500)
-        placeholder = container.empty()
+        placeholder = st.empty()
         full_text = ""
-        
-        for chunk in response:
-            full_text += chunk.text
-            # Update the UI in real-time
+
+        try:
+            with requests.post(url, json=payload, stream=True) as response:
+                # Check if the request itself failed (e.g., 404 or 500)
+                if response.status_code != 200:
+                    st.error(f"Server Error {response.status_code}: {response.text}")
+                    st.stop()
+
+                for line in response.iter_lines():
+                    if line:
+                        decoded_line = line.decode('utf-8')
+                        
+                        # Skip "keep-alive" comments or empty lines
+                        if not decoded_line.startswith("data: "):
+                            continue
+                            
+                        # Remove "data: " prefix
+                        json_str = decoded_line[6:] 
+
+                        # Check for the stream end signal
+                        if json_str.strip() == "[DONE]":
+                            break
+
+                        try:
+                            chunk = json.loads(json_str)
+                            
+                            # Robustly extract content
+                            if "choices" in chunk and len(chunk["choices"]) > 0:
+                                delta = chunk["choices"][0].get("delta", {})
+                                content = delta.get("content", "")
+                                
+                                full_text += content
+                                placeholder.markdown(full_text + "▌")
+                                
+                        except json.JSONDecodeError:
+                            continue
+                            
+            # Final update to remove cursor
             placeholder.markdown(full_text)
+
+        except requests.exceptions.RequestException as e:
+            st.error(f"Connection failed: {e}")
