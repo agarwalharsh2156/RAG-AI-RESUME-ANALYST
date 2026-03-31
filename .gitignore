@@ -3,3 +3,4 @@ venv
 __pycache__
 app/768_d_model/
 resumes
+*.pkl
