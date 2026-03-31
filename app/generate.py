@@ -16,8 +16,9 @@ uploaded_files = st.file_uploader(
     accept_multiple_files= True
 )
 
-def save_and_upsert(upload):
-    for file in uploaded_files:
+def save_and_upsert(files):
+    """Save uploaded PDFs to disk and upsert them to Pinecone."""
+    for file in files:
         file_path = os.path.join(RESUME_DIR, file.name)
         with open (file_path, "wb") as f:
             f.write(file.getbuffer())
@@ -30,12 +31,12 @@ from retrieval.format_context import eng_prompt
 from ingestion.ingest import upsert_to_index
 
 if uploaded_files:
-    save_and_upsert(upload=uploaded_files)
+    save_and_upsert(files=uploaded_files)
 
 
 if st.button("Analyze Resumes"):
     with st.spinner("Preparing analysis..."):
-        # getting top resumes out based on the query
+        # Get top matching resumes via hybrid search
         ranked_resumes = get_top_resumes(query, top_k_chunks = 15, top_n_resumes = 5)
 
         # getting the augmented prompt with resume context and the query

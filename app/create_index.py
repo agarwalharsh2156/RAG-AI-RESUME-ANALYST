@@ -36,8 +36,20 @@ def create(index_name):
     return
 
 if __name__ == "__main__":
-    request = input("Create or Delete (C or D):")
-    if request == "C" or request == "c":
-        create(index_name=index_name)
-    if request == "D" or request == "d":
-        pc.delete_index(index_name)
+    request = input("Create or Delete (C or D): ").strip().lower()
+
+    if request == "c":
+        if pc.has_index(index_name):
+            print(f"Index '{index_name}' already exists.")
+        else:
+            create(index_name=index_name)
+
+    elif request == "d":
+        if pc.has_index(index_name):
+            pc.delete_index(index_name)
+            print(f"Deleted index: {index_name}")
+        else:
+            print(f"Index '{index_name}' does not exist.")
+
+    else:
+        print("Invalid option. Please enter C or D.")
