@@ -8,14 +8,15 @@ PINECONE_INDEX_REGION = "us-east-1"
 DENSE_MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 # DENSE_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 PINECONE_INDEX_DIMENSION = 768 if DENSE_MODEL_NAME == "sentence-transformers/all-mpnet-base-v2" else 384
-PINECONE_INDEX_METRIC = "cosine"
+PINECONE_INDEX_METRIC = "dotproduct"
 PINECONE_VECTOR_TYPE = "dense"
 
-
+HYBIRD_ALPHA = 0.7
 LLM_MODEL = 'gemini-2.5-flash'
 DEFAULT_TOP_K = 1
 DEFAULT_NAMESPACE = "ai-labs-batch-2026"
 RESUME_DIR = os.path.join(BASE_DIR, 'resumes')
+
 LLM_INSTRUCTIONS = """
 ### ROLE
 You are a Senior Technical Recruiter. Your task is to analyze a provided pool of candidates to determine their suitability for specific job roles based on the data provided below.
